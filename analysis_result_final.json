@@ -1,0 +1,49 @@
+{
+  "total_rows": 1615,
+  "failed_count": 8,
+  "failed_rows": [
+    {
+      "row": 3,
+      "reason": "Không tìm thấy số CCCD hợp lệ (9-12 số)",
+      "content": "Thường trú Tạm trú Nơi ở hiện nay Tỉnh Xã"
+    },
+    {
+      "row": 398,
+      "reason": "Không tìm thấy số CCCD hợp lệ (9-12 số)",
+      "content": "395 A TAM 2003-02-20 00:00:00 x Kinh Tạm trú 12/B3 đường D3 khu phố 3 KV22 Tổ 3 Khu phố 3 x x x"
+    },
+    {
+      "row": 517,
+      "reason": "Không tìm thấy số CCCD hợp lệ (9-12 số)",
+      "content": "514 LƯU HIỂU NGUYỆT 1998-10-15 00:00:00 x Kinh Tạm trú 11/B5 đường N7 khu phố 3 KV22 Tổ 3 Khu phố 3 x x x"
+    },
+    {
+      "row": 518,
+      "reason": "Không tìm thấy số CCCD hợp lệ (9-12 số)",
+      "content": "515 NGUYỄN THỊ LỆ HIỀN 1984-04-15 00:00:00 x Kinh Tạm trú 11/B5 đường N7 khu phố 3 KV22 Tổ 3 Khu phố 3 x x x"
+    },
+    {
+      "row": 822,
+      "reason": "Không tìm thấy số CCCD hợp lệ (9-12 số)",
+      "content": "819 VÕ THỊ XƯƠNG 1968-09-06 00:00:00 x 0830168013526 Kinh Tạm trú 11/C8, Tổ 4 Khu phố 3 KV22 Tổ 4 Khu phố 3 x x x"
+    },
+    {
+      "row": 1020,
+      "reason": "Không tìm thấy số CCCD hợp lệ (9-12 số)",
+      "content": "1017 TRẦN TẤN HÀO 1970-05-07 00:00:00 x Kinh Tạm trú 31/C4 đường N5 khu phố 3 KV22 Tổ 13 Khu phố 3 x x x"
+    },
+    {
+      "row": 1158,
+      "reason": "Không tìm thấy số CCCD hợp lệ (9-12 số)",
+      "content": "1155 NGUYỄN THỊ LỢI 1995-05-06 00:00:00 x Kinh Tạm trú 14/C4 đường N4 khu phố 3 KV22 Tổ 13 Khu phố 3 x x x"
+    },
+    {
+      "row": 1259,
+      "reason": "Không tìm thấy số CCCD hợp lệ (9-12 số)",
+      "content": "1256 TRỊNH NHẬT HIỂU 1905-06-19 00:00:00 x Kinh Tạm trú 02/C4 Tổ 13 Khu phố 3 KV22 Tổ 13 Khu phố 3 x x x"
+    }
+  ],
+  "skipped_count": 0,
+  "skipped_rows": [],
+  "valid_count": 1607
+}
