@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { AN_PHU_LOCATIONS, NEIGHBORHOODS } from '../types';
+import { WARD_LOCATIONS, NEIGHBORHOODS } from '../types';
 
 /**
  * COMPONENT: ResultCalculation
@@ -246,7 +246,7 @@ export const ResultCalculation: React.FC<{ isLargeText?: boolean }> = ({ isLarge
         let grandTotal = 0;
         let grandVoted = 0;
         let lockedCount = 0;
-        const areas = AN_PHU_LOCATIONS.filter(l => l.type === 'area');
+        const areas = WARD_LOCATIONS.filter(l => l.type === 'area');
         let completedCount = 0;
 
         areas.forEach(area => {
@@ -403,7 +403,7 @@ export const ResultCalculation: React.FC<{ isLargeText?: boolean }> = ({ isLarge
 
     switch (viewMode) {
       case 'ward':
-        const allAreaIds = AN_PHU_LOCATIONS.filter(l => l.type === 'area').map(l => l.id);
+        const allAreaIds = WARD_LOCATIONS.filter(l => l.type === 'area').map(l => l.id);
         // Với chế độ "Toàn phường", ta trả về một danh sách các "đối tượng" tổng quát
         // Để giống giao diện Area, ta coi "Toàn phường" là một dòng, "Thường trú" là một dòng...
         const wardStat = calculateStat(voters, allAreaIds);
@@ -414,7 +414,7 @@ export const ResultCalculation: React.FC<{ isLargeText?: boolean }> = ({ isLarge
           {
             id: 'ALL',
             rawId: 'ward_all',
-            name: 'TOÀN PHƯỜNG AN PHÚ',
+            name: 'TOÀN PHƯỜNG BÀN CỜ',
             subLabel: 'Tổng hợp chung',
             detail: '09 Đơn vị, 45 KVBP',
             groups: ['09 Đơn vị', '45 KVBP', '80+ Tổ'],
@@ -442,9 +442,9 @@ export const ResultCalculation: React.FC<{ isLargeText?: boolean }> = ({ isLarge
 
       case 'unit':
         // Filter only 9 units
-        return AN_PHU_LOCATIONS.filter(l => l.type === 'unit').map(u => {
+        return WARD_LOCATIONS.filter(l => l.type === 'unit').map(u => {
           const unitVoters = voters.filter(v => v.unit_id === u.id);
-          const childAreas = AN_PHU_LOCATIONS.filter(a => a.parentId === u.id && a.type === 'area');
+          const childAreas = WARD_LOCATIONS.filter(a => a.parentId === u.id && a.type === 'area');
           const childAreaIds = childAreas.map(a => a.id);
 
           // Tạo list tên các KVBP con để hiển thị ở cột Chi tiết
@@ -466,7 +466,7 @@ export const ResultCalculation: React.FC<{ isLargeText?: boolean }> = ({ isLarge
           const nbVoters = voters.filter(v => v.neighborhood_id === n.id);
           // Tìm các Area có liên quan đến khu phố này
           const relatedAreaIds = Array.from(new Set(nbVoters.map(v => v.area_id))).filter(Boolean) as string[];
-          const relatedAreas = AN_PHU_LOCATIONS.filter(a => relatedAreaIds.includes(a.id));
+          const relatedAreas = WARD_LOCATIONS.filter(a => relatedAreaIds.includes(a.id));
           const areaNames = relatedAreas.map(a => a.name.replace('KVBP', 'KV').replace('số ', ''));
 
           // Normalized ID for Neighborhood (e.g., KP_1A -> 1A)
@@ -484,9 +484,9 @@ export const ResultCalculation: React.FC<{ isLargeText?: boolean }> = ({ isLarge
         });
 
       case 'area':
-        return AN_PHU_LOCATIONS.filter(l => l.type === 'area').map(a => {
+        return WARD_LOCATIONS.filter(l => l.type === 'area').map(a => {
           const areaVoters = voters.filter(v => v.area_id === a.id);
-          const unit = AN_PHU_LOCATIONS.find(u => u.id === a.parentId);
+          const unit = WARD_LOCATIONS.find(u => u.id === a.parentId);
           const groups = a.groups ? a.groups.split(',').map(g => g.trim()) : [];
 
           // Logic riêng cho Area: Check thẳng vào stats
@@ -511,7 +511,9 @@ export const ResultCalculation: React.FC<{ isLargeText?: boolean }> = ({ isLarge
             rawId: a.id,
             name: a.name.toUpperCase(),
             subLabel: unit?.name.replace('Đơn vị số', 'ĐV') || '',
-            detail: AN_PHU_LOCATIONS.find(n => n.id === a.neighborhoodId)?.name,
+            detail: typeof a.neighborhoodIds === 'object' && Array.isArray(a.neighborhoodIds)
+              ? a.neighborhoodIds.map(nid => WARD_LOCATIONS.find(n => n.id === nid)?.name).filter(Boolean).join(', ')
+              : '',
             groups: groups,
             total, voted, percent, status, isLocked,
             rawVoters: areaVoters
@@ -539,7 +541,7 @@ export const ResultCalculation: React.FC<{ isLargeText?: boolean }> = ({ isLarge
 
         return Object.values(groupsMap).map(g => {
           const neighborhoodName = NEIGHBORHOODS.find(n => n.id === g.neighborhoodId)?.name.toUpperCase() || 'KP KHÁC';
-          const unitName = AN_PHU_LOCATIONS.find(u => u.id === g.unitId)?.name.replace('Đơn vị số', 'ĐV') || '';
+          const unitName = WARD_LOCATIONS.find(u => u.id === g.unitId)?.name.replace('Đơn vị số', 'ĐV') || '';
           const areaList = Array.from(g.areaIds).map(aid => aid.toUpperCase().replace('KV', 'KV')).sort();
 
           const total = g.voters.length;
@@ -673,7 +675,7 @@ export const ResultCalculation: React.FC<{ isLargeText?: boolean }> = ({ isLarge
       {viewMode === 'candidates' ? (
         // CANDIDATE VIEW - GROUPED BY UNIT
         <div className="space-y-8 animate-in slide-in-from-bottom-4">
-          {AN_PHU_LOCATIONS.filter(l => l.type === 'unit').map(unit => {
+          {WARD_LOCATIONS.filter(l => l.type === 'unit').map(unit => {
             const unitResults = candidateResults.filter(c => c.unitId === unit.id);
             if (unitResults.length === 0) return null;
 
@@ -699,8 +701,8 @@ export const ResultCalculation: React.FC<{ isLargeText?: boolean }> = ({ isLarge
                     <div key={c.id} className={`grid grid-cols-12 gap-4 px-8 py-6 items-center hover:bg-slate-50 ${c.rank <= 3 ? 'bg-yellow-50/20' : ''}`}>
                       <div className="col-span-1 text-center flex flex-col items-center">
                         <span className={`size-8 rounded-full flex items-center justify-center font-black text-sm ${c.rank === 1 ? 'bg-yellow-400 text-yellow-900 shadow-sm' :
-                            c.rank === 2 ? 'bg-slate-300 text-slate-700' :
-                              c.rank === 3 ? 'bg-amber-600 text-white' : 'text-slate-400'
+                          c.rank === 2 ? 'bg-slate-300 text-slate-700' :
+                            c.rank === 3 ? 'bg-amber-600 text-white' : 'text-slate-400'
                           }`}>
                           {c.rank}
                         </span>

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { AN_PHU_LOCATIONS, NEIGHBORHOODS, LocationNode } from '../types';
+import { WARD_LOCATIONS, NEIGHBORHOODS, LocationNode } from '../types';
 import { supabase } from '../lib/supabaseClient';
 import { useNotification } from '../contexts/NotificationContext';
 import { jsPDF } from 'jspdf';
@@ -104,7 +104,7 @@ export const Reports: React.FC<ReportsProps> = ({ isLargeText }) => {
       {
         id: 'rp_kv01', code: 'Mẫu 15-BC', title: 'Biên bản kiểm phiếu KVBP số 01',
         level: 'area', targetId: 'kv01', status: 'draft', progress: 0, lastUpdated: 'Real-time',
-        author: 'Tổ trưởng KV01', description: 'Trường Tiểu học An Phú 3',
+        author: 'Tổ trưởng KV01', description: 'Trường Tiểu học Bàn Cờ 3',
         totalVoters: 0, votedVoters: 0, cutoffTime: 'Hiện tại'
       }
     ];
@@ -141,7 +141,7 @@ export const Reports: React.FC<ReportsProps> = ({ isLargeText }) => {
 
       const newStatusMap: Record<string, 'done' | 'voting' | 'empty'> = {};
 
-      AN_PHU_LOCATIONS.filter(l => l.type === 'area').forEach(area => {
+      WARD_LOCATIONS.filter(l => l.type === 'area').forEach(area => {
         if (lockedSet.has(area.id)) {
           newStatusMap[area.id] = 'done';
         } else if (activeAreasSet.has(area.id)) {
@@ -174,11 +174,11 @@ export const Reports: React.FC<ReportsProps> = ({ isLargeText }) => {
       if (report.level === 'area') {
         targetAreaIds = [report.targetId];
       } else if (report.level === 'unit') {
-        targetAreaIds = AN_PHU_LOCATIONS
+        targetAreaIds = WARD_LOCATIONS
           .filter(l => l.type === 'area' && l.parentId === report.targetId)
           .map(l => l.id);
       } else if (report.level === 'ward') {
-        targetAreaIds = AN_PHU_LOCATIONS
+        targetAreaIds = WARD_LOCATIONS
           .filter(l => l.type === 'area')
           .map(l => l.id);
       }
@@ -248,7 +248,7 @@ export const Reports: React.FC<ReportsProps> = ({ isLargeText }) => {
       if (report.level === 'unit') {
         relevantCandidates = relevantCandidates.filter(c => c.unit_id === report.targetId);
       } else if (report.level === 'area') {
-        const areaNode = AN_PHU_LOCATIONS.find(l => l.id === report.targetId);
+        const areaNode = WARD_LOCATIONS.find(l => l.id === report.targetId);
         if (areaNode && areaNode.parentId) {
           relevantCandidates = relevantCandidates.filter(c => c.unit_id === areaNode.parentId);
         }
@@ -289,7 +289,7 @@ export const Reports: React.FC<ReportsProps> = ({ isLargeText }) => {
     // 1. Prepare Stats Sheet
     const statsData = [
       ['HỘI ĐỒNG BẦU CỬ QUỐC GIA'],
-      ['ỦY BAN BẦU CỬ PHƯỜNG AN PHÚ'],
+      ['ỦY BAN BẦU CỬ PHƯỜNG BÀN CỜ'],
       [''],
       [viewingReport.title.toUpperCase()],
       ['Kỳ bầu cử khóa 2026 - 2031'],
@@ -404,18 +404,18 @@ export const Reports: React.FC<ReportsProps> = ({ isLargeText }) => {
   const availableUnits = useMemo(() => {
     if (!newReportData.neighborhood) return [];
     // Filter units that have areas in the selected neighborhood
-    const relevantUnitIds = AN_PHU_LOCATIONS
-      .filter(l => l.type === 'area' && l.neighborhoodId === newReportData.neighborhood)
+    const relevantUnitIds = WARD_LOCATIONS
+      .filter(l => l.type === 'area' && l.neighborhoodIds?.includes(newReportData.neighborhood))
       .map(l => l.parentId);
-    return AN_PHU_LOCATIONS.filter(l => l.type === 'unit' && relevantUnitIds.includes(l.id));
+    return WARD_LOCATIONS.filter(l => l.type === 'unit' && relevantUnitIds.includes(l.id));
   }, [newReportData.neighborhood]);
   const availableAreas = useMemo(() => {
     if (!newReportData.unit) return [];
     // Filter areas belonging to both selected unit and selected neighborhood
-    return AN_PHU_LOCATIONS.filter(l =>
+    return WARD_LOCATIONS.filter(l =>
       l.type === 'area' &&
       l.parentId === newReportData.unit &&
-      (newReportData.neighborhood ? l.neighborhoodId === newReportData.neighborhood : true)
+      (newReportData.neighborhood ? l.neighborhoodIds?.includes(newReportData.neighborhood) : true)
     );
   }, [newReportData.unit, newReportData.neighborhood]);
 
@@ -445,12 +445,12 @@ export const Reports: React.FC<ReportsProps> = ({ isLargeText }) => {
       if (!newReportData.area) { showNotification('Vui lòng chọn Khu vực bỏ phiếu'); return; }
       targetId = newReportData.area;
       level = 'area';
-      titleDetail = AN_PHU_LOCATIONS.find(l => l.id === targetId)?.name || targetId;
+      titleDetail = WARD_LOCATIONS.find(l => l.id === targetId)?.name || targetId;
     } else if (template.levelScope === 'unit') {
       if (!newReportData.unit) { showNotification('Vui lòng chọn Đơn vị bầu cử'); return; }
       targetId = newReportData.unit;
       level = 'unit';
-      titleDetail = AN_PHU_LOCATIONS.find(l => l.id === targetId)?.name || targetId;
+      titleDetail = WARD_LOCATIONS.find(l => l.id === targetId)?.name || targetId;
     } else {
       targetId = 'ap';
       level = 'ward';
@@ -487,7 +487,7 @@ export const Reports: React.FC<ReportsProps> = ({ isLargeText }) => {
           <h1 className={`${isLargeText ? 'text-4xl' : 'text-3xl'} font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none`}>Hồ sơ, Mẫu biểu & Biên bản</h1>
           <p className="text-slate-500 font-bold mt-2 uppercase tracking-[0.2em] flex items-center gap-2">
             <span className="w-3 h-3 rounded-full bg-admin-red animate-pulse"></span>
-            Hệ thống Quản trị Bầu cử GovTech An Phú 2026
+            Hệ thống Quản trị Bầu cử GovTech Bàn Cờ 2026
           </p>
         </div>
         <div className="flex gap-3">
@@ -519,7 +519,7 @@ export const Reports: React.FC<ReportsProps> = ({ isLargeText }) => {
             <button onClick={() => setShowQuickStats(false)} className="text-slate-500 hover:text-white"><span className="material-symbols-outlined">close</span></button>
           </div>
           <div className="grid grid-cols-5 sm:grid-cols-9 md:grid-cols-15 gap-2">
-            {AN_PHU_LOCATIONS.filter(l => l.type === 'area').map((area) => {
+            {WARD_LOCATIONS.filter(l => l.type === 'area').map((area) => {
               // Real-time status logic
               const status = areaStatusMap[area.id] || 'empty';
 
@@ -858,14 +858,14 @@ export const Reports: React.FC<ReportsProps> = ({ isLargeText }) => {
                     <div className="flex justify-between items-start mb-10">
                       <div className="text-center w-5/12">
                         <p className="text-sm font-extrabold uppercase leading-tight">HỘI ĐỒNG BẦU CỬ QUỐC GIA</p>
-                        <p className="text-sm font-extrabold uppercase leading-tight">ỦY BAN BẦU CỬ PHƯỜNG AN PHÚ</p>
+                        <p className="text-sm font-extrabold uppercase leading-tight">ỦY BAN BẦU CỬ PHƯỜNG BÀN CỜ</p>
                         <div className="w-24 h-[1px] bg-slate-900 mx-auto mt-2"></div>
                       </div>
                       <div className="text-center w-6/12">
                         <p className="text-sm font-extrabold uppercase leading-tight">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
                         <p className="text-sm font-bold leading-tight">Độc lập - Tự do - Hạnh phúc</p>
                         <div className="w-40 h-[1px] bg-slate-900 mx-auto mt-2"></div>
-                        <p className="text-xs italic mt-6">An Phú, ngày ... tháng 05 năm 2026</p>
+                        <p className="text-xs italic mt-6">Bàn Cờ, ngày ... tháng 05 năm 2026</p>
                       </div>
                     </div>
 
@@ -876,7 +876,7 @@ export const Reports: React.FC<ReportsProps> = ({ isLargeText }) => {
 
                     <div className="space-y-4 text-base text-justify font-sans mb-8">
                       <p>Căn cứ Luật Bầu cử đại biểu Quốc hội và đại biểu Hội đồng nhân dân số 85/2015/QH13;</p>
-                      <p>Hôm nay, vào hồi ..... giờ ..... phút, ngày .... tháng .... năm 2026, tại địa điểm {viewingReport.level === 'area' ? 'Khu vực bỏ phiếu ' + viewingReport.targetId.toUpperCase() : 'Phường An Phú'}.</p>
+                      <p>Hôm nay, vào hồi ..... giờ ..... phút, ngày .... tháng .... năm 2026, tại địa điểm {viewingReport.level === 'area' ? 'Khu vực bỏ phiếu ' + viewingReport.targetId.toUpperCase() : 'Phường Bàn Cờ'}.</p>
                       <p>Chúng tôi gồm: ..................................................................................................</p>
                     </div>
 
@@ -944,7 +944,7 @@ export const Reports: React.FC<ReportsProps> = ({ isLargeText }) => {
                 </div>
                 <div>
                   <p className="text-xs font-black text-slate-500 uppercase tracking-widest leading-none">Cổng xuất bản:</p>
-                  <p className={`text-sm font-black uppercase mt-1 ${reportDetailData?.isLocked ? 'text-admin-red' : 'text-primary'}`}>Máy in văn phòng (An Phú Hub)</p>
+                  <p className={`text-sm font-black uppercase mt-1 ${reportDetailData?.isLocked ? 'text-admin-red' : 'text-primary'}`}>Máy in văn phòng (Bàn Cờ Hub)</p>
                 </div>
               </div>
               <div className="flex gap-4">

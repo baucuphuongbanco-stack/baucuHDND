@@ -13,9 +13,9 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB
       },
       manifest: {
-        name: 'Bầu cử An Phú 2026',
-        short_name: 'BC An Phú',
-        description: 'Hệ thống Quản lý Bầu cử Phường An Phú 2026',
+        name: 'Bầu cử Bàn Cờ 2026',
+        short_name: 'BC Bàn Cờ',
+        description: 'Hệ thống Quản lý Bầu cử Phường Bàn Cờ 2026',
         theme_color: '#ef4444',
         icons: [
           {

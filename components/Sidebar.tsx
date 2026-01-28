@@ -13,7 +13,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange, isOpen, isLargeText }) => {
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard An Phú', icon: 'monitoring' },
+    { id: 'dashboard', label: 'Dashboard Bàn Cờ', icon: 'monitoring' },
     { id: 'candidates', label: 'Danh sách Ứng viên', icon: 'badge' },
     { id: 'voters', label: 'Cử tri Phường', icon: 'groups' },
     { id: 'data-entry', label: 'Nhập kết quả', icon: 'app_registration' },
@@ -32,7 +32,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange, isO
         </div>
         {isOpen && (
           <div className="flex flex-col whitespace-nowrap">
-            <h1 className="text-slate-900 dark:text-white text-base font-black leading-none uppercase tracking-tighter">Phường An Phú</h1>
+            <h1 className="text-slate-900 dark:text-white text-base font-black leading-none uppercase tracking-tighter">Phường Bàn Cờ</h1>
             <p className="text-slate-500 text-[10px] mt-1 font-bold uppercase tracking-widest">Hệ thống Bầu cử 2026</p>
           </div>
         )}
@@ -43,11 +43,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPage, onPageChange, isO
           <button
             key={item.id}
             onClick={() => onPageChange(item.id as PageType)}
-            className={`w-full flex items-center gap-3.5 px-3 py-3 rounded-xl transition-all duration-300 group ${
-              currentPage === item.id 
-                ? 'bg-primary text-white shadow-xl shadow-primary/20' 
+            className={`w-full flex items-center gap-3.5 px-3 py-3 rounded-xl transition-all duration-300 group ${currentPage === item.id
+                ? 'bg-primary text-white shadow-xl shadow-primary/20'
                 : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'
-            }`}
+              }`}
           >
             <span className={`material-symbols-outlined text-xl ${currentPage === item.id ? 'material-symbols-filled' : 'group-hover:scale-110 transition-transform'}`}>
               {item.icon}

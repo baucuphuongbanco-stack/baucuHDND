@@ -3,7 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AN_PHU_LOCATIONS, NEIGHBORHOODS } from '../types';
+import { WARD_LOCATIONS, NEIGHBORHOODS } from '../types';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 import { createLog } from '../lib/logger';
@@ -192,10 +192,10 @@ export const AccountManagement: React.FC<AccountManagementProps> = ({ isLargeTex
   };
 
   // --- MEMOIZED DATA ---
-  const units = useMemo(() => AN_PHU_LOCATIONS.filter(l => l.type === 'unit'), []);
+  const units = useMemo(() => WARD_LOCATIONS.filter(l => l.type === 'unit'), []);
   const areas = useMemo(() => {
     if (!watchedUnitId) return [];
-    return AN_PHU_LOCATIONS.filter(l => l.type === 'area' && l.parentId === watchedUnitId);
+    return WARD_LOCATIONS.filter(l => l.type === 'area' && l.parentId === watchedUnitId);
   }, [watchedUnitId]);
 
   // --- HANDLERS ---
@@ -256,7 +256,7 @@ export const AccountManagement: React.FC<AccountManagementProps> = ({ isLargeTex
         alert('Cập nhật thông tin tài khoản thành công!');
       } else {
         // CREATE
-        const autoEmail = `${data.username}@anphu.gov.vn`;
+        const autoEmail = `${data.username}@banco.gov.vn`;
         const { error } = await supabase.rpc('create_system_user', {
           p_email: autoEmail,
           p_password: data.password,
@@ -390,7 +390,7 @@ export const AccountManagement: React.FC<AccountManagementProps> = ({ isLargeTex
             Phân Quyền & Tài Khoản
           </h1>
           <p className="text-slate-500 font-bold text-sm mt-2 uppercase tracking-widest">
-            Quản trị truy cập hệ thống bầu cử Phường An Phú
+            Quản trị truy cập hệ thống bầu cử Phường Bàn Cờ
           </p>
         </div>
         <button
@@ -462,8 +462,8 @@ export const AccountManagement: React.FC<AccountManagementProps> = ({ isLargeTex
               ) : (
                 filteredAccounts.map(acc => {
                   const roleInfo = ROLES.find(r => r.code === acc.role);
-                  const unitName = AN_PHU_LOCATIONS.find(u => u.id === acc.unitId)?.name;
-                  const areaName = AN_PHU_LOCATIONS.find(a => a.id === acc.areaId)?.name;
+                  const unitName = WARD_LOCATIONS.find(u => u.id === acc.unitId)?.name;
+                  const areaName = WARD_LOCATIONS.find(a => a.id === acc.areaId)?.name;
                   const isSelf = acc.id === user?.id;
                   const isDeleted = acc.status === 'deleted';
 

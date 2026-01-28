@@ -22,7 +22,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
       let loginEmail = email.trim().toLowerCase();
       // Nếu nhập username không có @, tự động thêm domain công vụ
       if (!loginEmail.includes('@')) {
-        loginEmail = `${loginEmail}@anphu.gov.vn`;
+        loginEmail = `${loginEmail}@banco.gov.vn`;
       }
 
       // 1. Authenticate with Supabase Auth
@@ -100,7 +100,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
           </div>
           <div>
             <h3 className="text-slate-500 text-[11px] font-black uppercase tracking-[0.3em]">Hệ thống quản lý</h3>
-            <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mt-1">Bầu Cử Số Phường An Phú</h1>
+            <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter mt-1">Bầu Cử Số Phường Bàn Cờ</h1>
             <p className="text-[10px] font-bold text-primary uppercase tracking-widest mt-1 italic">Kỳ bầu cử nhiệm kỳ 2026 - 2031</p>
           </div>
         </div>

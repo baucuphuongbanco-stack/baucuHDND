@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { AN_PHU_LOCATIONS } from '../types';
+import { WARD_LOCATIONS } from '../types';
 import { supabase } from '../lib/supabaseClient';
 import { useNotification } from '../contexts/NotificationContext';
 
@@ -47,7 +47,7 @@ const WARD_CANDIDATES = [
    { name: "LÊ XUÂN HÙNG", dob: "06/02/1984", gender: "Nam", title: "Chỉ huy trưởng Ban CHQS phường", unitId: "unit_3" },
    { name: "HỒ TẤN TÀI", dob: "24/09/1979", gender: "Nam", title: "Hiệu trưởng trường TH Tuy An", unitId: "unit_4" },
    { name: "NGUYỄN TRUNG TOÀN", dob: "04/09/1967", gender: "Nam", title: "Hiệu trưởng trường THCS Nguyễn Văn Trỗi", unitId: "unit_5" },
-   { name: "HOÀNG THÚY HÀ", dob: "25/07/1986", gender: "Nữ", title: "Phó Hiệu trưởng trường TH An Phú 2", unitId: "unit_6" },
+   { name: "HOÀNG THÚY HÀ", dob: "25/07/1986", gender: "Nữ", title: "Phó Hiệu trưởng trường TH Bàn Cờ 2", unitId: "unit_6" },
    { name: "NGUYỄN KIM PHƯƠNG", dob: "26/01/1974", gender: "Nữ", title: "Hiệu trưởng trường Mầm non Hoa Mai 5", unitId: "unit_7" },
    { name: "PHAN THANH NGỌC", dob: "08/05/1982", gender: "Nữ", title: "Trưởng Khoa dược Trạm Y Tế", unitId: "unit_8" },
    { name: "NGUYỄN ĐOÀN HOÀNG THIỆN", dob: "06/01/1982", gender: "Nam", title: "PGĐ Phụ trách TYT Phường", unitId: "unit_9" },
@@ -72,7 +72,7 @@ const WARD_CANDIDATES = [
    { name: "PHAN CÔNG VINH", dob: "06/08/1980", gender: "Nam", title: "Chủ tịch UBMTTQVN phường", unitId: "unit_1" },
 
    // III. NGƯỜI NGOÀI ĐẢNG (9)
-   { name: "NGUYỄN CHÍ THIÊN", dob: "14/08/1974", gender: "Nam", title: "Phó nội vụ - BTV Giáo xứ An Phú", unitId: "unit_3" },
+   { name: "NGUYỄN CHÍ THIÊN", dob: "14/08/1974", gender: "Nam", title: "Phó nội vụ - BTV Giáo xứ Bàn Cờ", unitId: "unit_3" },
    { name: "THÍCH NỮ THẢO LẠC", dob: "08/08/1986", gender: "Nữ", title: "Tôn giáo - Tri thức", unitId: "unit_3" },
    { name: "NGUYỄN NGỌC TUYẾT", dob: "29/04/1965", gender: "Nữ", title: "Hội viên Hội Cựu giáo chức", unitId: "unit_4" },
    { name: "LƯƠNG THỊ NGỌC XUYẾN", dob: "12/07/1983", gender: "Nữ", title: "Phó Giám Đốc Cty TNHH Kim Thành A", unitId: "unit_5" },
@@ -429,7 +429,7 @@ export const CandidateList: React.FC<{ isLargeText?: boolean }> = ({ isLargeText
    };
 
    const getUnitName = (unitId: string) => {
-      const unit = AN_PHU_LOCATIONS.find(u => u.id === unitId);
+      const unit = WARD_LOCATIONS.find(u => u.id === unitId);
       return unit ? unit.name.replace('Đơn vị số', 'Số') : 'Chưa phân';
    };
 
@@ -543,7 +543,7 @@ export const CandidateList: React.FC<{ isLargeText?: boolean }> = ({ isLargeText
                      className="w-full h-12 px-4 bg-slate-50 border-none rounded-xl text-sm font-bold focus:ring-2 focus:ring-primary/10 transition-all outline-none appearance-none cursor-pointer"
                   >
                      <option value="all">Tất cả các đơn vị</option>
-                     {AN_PHU_LOCATIONS.filter(l => l.type === 'unit').map(u => (
+                     {WARD_LOCATIONS.filter(l => l.type === 'unit').map(u => (
                         <option key={u.id} value={u.id}>{u.name}</option>
                      ))}
                   </select>
@@ -583,7 +583,7 @@ export const CandidateList: React.FC<{ isLargeText?: boolean }> = ({ isLargeText
             </div>
          ) : (
             <div className="space-y-16">
-               {AN_PHU_LOCATIONS.filter(l => l.type === 'unit').map(unit => {
+               {WARD_LOCATIONS.filter(l => l.type === 'unit').map(unit => {
                   const unitMatches = filteredCandidates.filter(c => c.unitId === unit.id);
                   if (unitMatches.length === 0) return null;
 
@@ -808,7 +808,7 @@ export const CandidateList: React.FC<{ isLargeText?: boolean }> = ({ isLargeText
 
                {/* Unassigned Candidates */}
                {(() => {
-                  const assignedUnitIds = AN_PHU_LOCATIONS.filter(l => l.type === 'unit').map(u => u.id);
+                  const assignedUnitIds = WARD_LOCATIONS.filter(l => l.type === 'unit').map(u => u.id);
                   const unassigned = filteredCandidates.filter(c => !assignedUnitIds.includes(c.unitId));
                   if (unassigned.length === 0) return null;
 
@@ -974,7 +974,7 @@ export const CandidateList: React.FC<{ isLargeText?: boolean }> = ({ isLargeText
                                                 {c.level === 'quoc-hoi' ? 'Quốc hội' : c.level === 'thanh-pho' ? 'Thành phố' : 'Phường'}
                                              </span>
                                           </td>
-                                          <td className="px-4 py-2 text-xs font-bold text-slate-500">{AN_PHU_LOCATIONS.find(u => u.id === c.unitId)?.name}</td>
+                                          <td className="px-4 py-2 text-xs font-bold text-slate-500">{WARD_LOCATIONS.find(u => u.id === c.unitId)?.name}</td>
                                           <td className="px-4 py-2 text-[10px] text-slate-400 font-bold truncate max-w-[150px]">{c.title}</td>
                                        </tr>
                                     ))}
@@ -1095,7 +1095,7 @@ export const CandidateList: React.FC<{ isLargeText?: boolean }> = ({ isLargeText
                               className="w-full h-12 px-4 bg-slate-50 border border-slate-200 rounded-xl font-bold text-sm focus:border-primary outline-none transition-all"
                            >
                               <option value="">-- Chọn đơn vị --</option>
-                              {AN_PHU_LOCATIONS.filter(l => l.type === 'unit').map(u => (
+                              {WARD_LOCATIONS.filter(l => l.type === 'unit').map(u => (
                                  <option key={u.id} value={u.id}>{u.name}</option>
                               ))}
                            </select>

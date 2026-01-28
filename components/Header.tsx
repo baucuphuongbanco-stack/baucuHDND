@@ -33,7 +33,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, onLogout, isLar
             <span className="material-symbols-outlined text-2xl font-black italic">account_balance</span>
           </div>
           <div className="hidden md:block">
-            <h2 className="text-slate-900 dark:text-white text-lg font-black tracking-tight uppercase leading-none">PHƯỜNG AN PHÚ</h2>
+            <h2 className="text-slate-900 dark:text-white text-lg font-black tracking-tight uppercase leading-none">PHƯỜNG BÀN CỜ</h2>
             <p className="text-primary text-[10px] font-black uppercase tracking-[0.2em] mt-1">HỆ THỐNG BẦU CỬ 2026</p>
           </div>
           {!isOnline && (

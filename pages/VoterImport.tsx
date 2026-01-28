@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { AN_PHU_LOCATIONS } from '../types';
+import { WARD_LOCATIONS } from '../types';
 import { createLog } from '../lib/logger';
 import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
@@ -58,15 +58,15 @@ export const VoterImport: React.FC<VoterImportProps> = ({ onBack, isLargeText })
   const getUnitIdFromAreaId = (areaId: string): string => {
     // Normalize areaId for lookup (e.g., "KV 22" -> "kv22")
     const normalized = areaId.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
-    const found = AN_PHU_LOCATIONS.find(l => l.id.toLowerCase() === normalized);
+    const found = WARD_LOCATIONS.find(l => l.id.toLowerCase() === normalized);
     return found?.parentId || 'unit_1';
   };
 
   // CHUẨN HÓA: Truy xuất Khu phố từ bộ Master Data
   const getNeighborhoodIdFromAreaId = (areaId: string): string => {
     const normalized = areaId.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
-    const found = AN_PHU_LOCATIONS.find(l => l.id.toLowerCase() === normalized);
-    return found?.neighborhoodId || 'kp_1a'; // Mặc định kp_1a
+    const found = WARD_LOCATIONS.find(l => l.id.toLowerCase() === normalized);
+    return found?.neighborhoodIds?.[0] || 'kp_1'; // Mặc định kp_1 nếu không tìm thấy
   };
 
   const handleClearData = async () => {
@@ -578,7 +578,7 @@ export const VoterImport: React.FC<VoterImportProps> = ({ onBack, isLargeText })
               Nhật ký xử lý hệ thống
             </h3>
             <div className="space-y-3 max-h-[450px] overflow-y-auto custom-scrollbar pr-2 text-[10px]">
-              {importLogs.length === 0 && <p className="text-slate-500 italic">Sẵn sàng phân tích theo bộ chuẩn AN_PHU_LOCATIONS...</p>}
+              {importLogs.length === 0 && <p className="text-slate-500 italic">Sẵn sàng phân tích theo bộ chuẩn WARD_LOCATIONS...</p>}
               {importLogs.map((log, i) => (
                 <div key={i} className={`font-bold p-3 rounded-xl border border-white/5 animate-in slide-in-from-right-4 ${log.type === 'error' ? 'bg-red-500/10 text-red-400' :
                   log.type === 'success' ? 'bg-emerald-500/10 text-emerald-400' :

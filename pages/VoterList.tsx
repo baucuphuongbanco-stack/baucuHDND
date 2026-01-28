@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Voter, AN_PHU_LOCATIONS, NEIGHBORHOODS, VotingStatus, ResidenceStatus } from '../types';
+import { Voter, WARD_LOCATIONS, NEIGHBORHOODS, VotingStatus, ResidenceStatus } from '../types';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 import { createLog } from '../lib/logger';
@@ -37,7 +37,7 @@ export const VoterList: React.FC<VoterListProps> = ({ onImportClick, isLargeText
     // Advanced Filters (Ẩn/Hiện)
     const [filterNeighborhood, setFilterNeighborhood] = useState('all');
     const [filterUnit, setFilterUnit] = useState('all');
-    const [filterGroup, setFilterGroup] = useState('');
+
     const [filterResidence, setFilterResidence] = useState('all');
 
     // --- LOGIC: PERMISSION-BASED SCOPE ---
@@ -52,8 +52,11 @@ export const VoterList: React.FC<VoterListProps> = ({ onImportClick, isLargeText
             if (profile.areaId) setFilterArea(profile.areaId);
 
             // Tìm neighborhood tương ứng với areaId
-            const location = AN_PHU_LOCATIONS.find(l => l.id === profile.areaId);
-            if (location?.neighborhoodId) setFilterNeighborhood(location.neighborhoodId);
+            const location = WARD_LOCATIONS.find(l => l.id === profile.areaId);
+            if (location?.neighborhoodIds && location.neighborhoodIds.length > 0) {
+                // Mặc định chọn khu phố đầu tiên thuộc khu vực này
+                setFilterNeighborhood(location.neighborhoodIds[0]);
+            }
         }
     }, [isRestricted, profile]);
 
@@ -67,67 +70,66 @@ export const VoterList: React.FC<VoterListProps> = ({ onImportClick, isLargeText
     useEffect(() => {
         // Khi thay đổi Đơn vị, reset KVBP và Tổ
         setFilterArea('all');
-        setFilterGroup('');
+
+
+        // Cần reset ca neighborhood nếu neighborhood không thuộc unit mới?
+        // Logic lọc này hơi phức tạp, tốt nhất cứ để user tự chọn lại nếu cần
     }, [filterUnit]);
 
     useEffect(() => {
         // Khi thay đổi KVBP, reset Tổ và Số thẻ
-        setFilterGroup('');
+
         setFilterCardNumber('');
     }, [filterArea]);
 
     // --- FILTER OPTIONS COMPUTATION ---
     const unitOptions = useMemo(() => {
-        if (filterNeighborhood === 'all') return AN_PHU_LOCATIONS.filter(l => l.type === 'unit');
+        if (filterNeighborhood === 'all') return WARD_LOCATIONS.filter(l => l.type === 'unit');
+
+        // Tìm các KVBP có chứa neighborhood đang chọn
         const validUnitIds = new Set(
-            AN_PHU_LOCATIONS
-                .filter(l => l.type === 'area' && l.neighborhoodId === filterNeighborhood)
+            WARD_LOCATIONS
+                .filter(l => l.type === 'area' && l.neighborhoodIds?.includes(filterNeighborhood))
                 .map(l => l.parentId)
                 .filter(id => id !== undefined) as string[]
         );
-        return AN_PHU_LOCATIONS.filter(l => l.type === 'unit' && validUnitIds.has(l.id));
+        return WARD_LOCATIONS.filter(l => l.type === 'unit' && validUnitIds.has(l.id));
     }, [filterNeighborhood]);
 
     const areaOptions = useMemo(() => {
-        return AN_PHU_LOCATIONS.filter(l => {
+        return WARD_LOCATIONS.filter(l => {
             if (l.type !== 'area') return false;
             if (filterUnit !== 'all' && l.parentId !== filterUnit) return false;
-            if (filterNeighborhood !== 'all' && l.neighborhoodId !== filterNeighborhood) return false;
+
+            // Check if KV contains the selected neighborhood
+            if (filterNeighborhood !== 'all') {
+                return l.neighborhoodIds?.includes(filterNeighborhood);
+            }
             return true;
         });
     }, [filterNeighborhood, filterUnit]);
 
 
-    // Lấy danh sách Tổ từ dữ liệu thực tế trong database
-    const groupOptions = useMemo(() => {
-        const groups = new Set<string>();
-
-        // Lọc voters theo các filter hiện tại
-        let filteredVoters = voters;
-        if (filterNeighborhood !== 'all') {
-            filteredVoters = filteredVoters.filter(v => v.neighborhoodId === filterNeighborhood);
-        }
-        if (filterUnit !== 'all') {
-            filteredVoters = filteredVoters.filter(v => v.unitId === filterUnit);
-        }
-        if (filterArea !== 'all') {
-            filteredVoters = filteredVoters.filter(v => v.areaId === filterArea);
-        }
-
-        // Lấy tất cả các tổ duy nhất từ dữ liệu
-        filteredVoters.forEach(v => {
-            if (v.group && v.group.trim()) {
-                groups.add(v.group.trim());
+    const neighborhoodOptions = useMemo(() => {
+        return NEIGHBORHOODS.filter(n => {
+            // Nếu đã chọn Area -> chỉ hiện neighborhood thuộc Area đó
+            if (filterArea !== 'all') {
+                const areaNode = WARD_LOCATIONS.find(l => l.id === filterArea);
+                return areaNode?.neighborhoodIds?.includes(n.id);
             }
+            // Nếu mới chọn Unit -> chỉ hiện neighborhood thuộc các Area của Unit đó
+            if (filterUnit !== 'all') {
+                const areaIdsInUnit = WARD_LOCATIONS
+                    .filter(l => l.type === 'area' && l.parentId === filterUnit)
+                    .map(a => a.neighborhoodIds)
+                    .flat();
+                return areaIdsInUnit.includes(n.id);
+            }
+            return true;
         });
+    }, [filterArea, filterUnit]);
 
-        // Sắp xếp theo số tổ
-        return Array.from(groups).sort((a, b) => {
-            const na = parseInt(a.replace(/[^\d]/g, '')) || 0;
-            const nb = parseInt(b.replace(/[^\d]/g, '')) || 0;
-            return na - nb;
-        });
-    }, [voters, filterNeighborhood, filterUnit, filterArea]);
+
 
 
     // --- DATA FETCHING & REALTIME ---
@@ -140,9 +142,9 @@ export const VoterList: React.FC<VoterListProps> = ({ onImportClick, isLargeText
             })
             .subscribe();
         return () => { supabase.removeChannel(sub); };
-    }, [filterNeighborhood, filterUnit, filterArea, filterGroup, filterResidence, filterVoting]);
+    }, [filterNeighborhood, filterUnit, filterArea, filterResidence, filterVoting]);
 
-    useEffect(() => { setCurrentPage(1); }, [searchTerm, filterNeighborhood, filterUnit, filterArea, filterGroup, filterResidence, filterVoting, filterCardNumber]);
+    useEffect(() => { setCurrentPage(1); }, [searchTerm, filterNeighborhood, filterUnit, filterArea, filterResidence, filterVoting, filterCardNumber]);
 
     const fetchVoters = async () => {
         setLoading(true);
@@ -152,7 +154,7 @@ export const VoterList: React.FC<VoterListProps> = ({ onImportClick, isLargeText
         if (filterNeighborhood !== 'all') query = query.eq('neighborhood_id', filterNeighborhood);
         if (filterUnit !== 'all') query = query.eq('unit_id', filterUnit);
         if (filterArea !== 'all') query = query.eq('area_id', filterArea);
-        if (filterGroup && filterGroup !== '') query = query.eq('group_name', filterGroup);
+
         if (filterResidence !== 'all') query = query.eq('residence_status', filterResidence);
         if (filterVoting !== 'all') query = query.eq('voting_status', filterVoting);
 
@@ -349,14 +351,7 @@ export const VoterList: React.FC<VoterListProps> = ({ onImportClick, isLargeText
                             <option value="da-bau">Đã bầu</option>
                         </select>
 
-                        <select
-                            value={filterArea}
-                            onChange={e => setFilterArea(e.target.value)}
-                            className="h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-bold uppercase cursor-pointer focus:border-primary outline-none max-w-[150px]"
-                        >
-                            <option value="all">-- Tất cả KVBP --</option>
-                            {AN_PHU_LOCATIONS.filter(l => l.type === 'area').map(a => <option key={a.id} value={a.id}>{a.id.toUpperCase()} - {a.locationDetail || a.name}</option>)}
-                        </select>
+
 
                         {/* Card Number Filter - Appears after selecting area */}
                         {filterArea !== 'all' && (
@@ -399,14 +394,7 @@ export const VoterList: React.FC<VoterListProps> = ({ onImportClick, isLargeText
                 {/* 2. ADVANCED FILTERS (Collapsible) */}
                 {showAdvancedFilters && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-100 animate-in slide-in-from-top-2">
-                        <select
-                            value={filterNeighborhood}
-                            onChange={e => setFilterNeighborhood(e.target.value)}
-                            className="h-9 px-3 bg-slate-50 border-none rounded-lg text-[10px] font-black uppercase"
-                        >
-                            <option value="all">Tất cả Khu phố</option>
-                            {NEIGHBORHOODS.map(n => <option key={n.id} value={n.id}>{n.name}</option>)}
-                        </select>
+                        {/* 1. ĐƠN VỊ */}
                         <select
                             value={filterUnit}
                             onChange={e => setFilterUnit(e.target.value)}
@@ -415,10 +403,30 @@ export const VoterList: React.FC<VoterListProps> = ({ onImportClick, isLargeText
                             <option value="all">Tất cả Đơn vị</option>
                             {unitOptions.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
                         </select>
-                        <select value={filterGroup} onChange={e => setFilterGroup(e.target.value)} className="h-9 px-3 bg-slate-50 border-none rounded-lg text-[10px] font-black uppercase">
-                            <option value="">Tất cả Tổ</option>
-                            {groupOptions.map(g => <option key={g} value={g}>{g}</option>)}
+
+                        {/* 2. KHU VỰC (Area) */}
+                        <select
+                            value={filterArea}
+                            onChange={e => setFilterArea(e.target.value)}
+                            className={`h-9 px-3 border-none rounded-lg text-[10px] font-black uppercase transition-colors ${filterArea !== 'all' ? 'bg-indigo-50 text-indigo-700' : 'bg-slate-50'}`}
+                        >
+                            <option value="all">Tất cả KVBP</option>
+                            {areaOptions.map(a => <option key={a.id} value={a.id}>{a.id.toUpperCase()} - {a.locationDetail ? (a.locationDetail.substring(0, 20) + '...') : a.name}</option>)}
                         </select>
+
+                        {/* 3. KHU PHỐ */}
+                        <select
+                            value={filterNeighborhood}
+                            onChange={e => setFilterNeighborhood(e.target.value)}
+                            className={`h-9 px-3 border-none rounded-lg text-[10px] font-black uppercase transition-colors ${filterNeighborhood !== 'all' ? 'bg-indigo-50 text-indigo-700' : 'bg-slate-50'}`}
+                        >
+                            <option value="all">Tất cả Khu phố</option>
+                            {neighborhoodOptions.map(n => <option key={n.id} value={n.id}>{n.name}</option>)}
+                        </select>
+
+
+
+                        {/* 5. CƯ TRÚ */}
                         <select value={filterResidence} onChange={e => setFilterResidence(e.target.value)} className="h-9 px-3 bg-slate-50 border-none rounded-lg text-[10px] font-black uppercase">
                             <option value="all">Tất cả Cư trú</option>
                             <option value="thuong-tru">Thường trú</option>

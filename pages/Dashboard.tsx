@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { AN_PHU_LOCATIONS } from '../types';
+import { WARD_LOCATIONS } from '../types';
 import {
    BarChart,
    Bar,
@@ -78,7 +78,7 @@ export const Dashboard: React.FC<{ isLargeText?: boolean }> = ({ isLargeText }) 
             const votedCount = votersData.filter(v => v.voting_status === 'da-bau').length;
             setStats({ total: totalCount, voted: votedCount });
 
-            const units = AN_PHU_LOCATIONS.filter(l => l.type === 'unit');
+            const units = WARD_LOCATIONS.filter(l => l.type === 'unit');
             const unitStats = units.map(unit => {
                const unitVoters = votersData.filter(v => v.unit_id === unit.id);
                const unitTotal = unitVoters.length;
@@ -94,7 +94,7 @@ export const Dashboard: React.FC<{ isLargeText?: boolean }> = ({ isLargeText }) 
             });
             setUnitChartData(unitStats);
 
-            const areaNodes = AN_PHU_LOCATIONS.filter(l => l.type === 'area');
+            const areaNodes = WARD_LOCATIONS.filter(l => l.type === 'area');
             const calculatedKV = areaNodes.map(area => {
                const areaVoters = votersData.filter(v => v.area_id === area.id);
                const t = areaVoters.length;
@@ -180,7 +180,7 @@ export const Dashboard: React.FC<{ isLargeText?: boolean }> = ({ isLargeText }) 
 
    const selectedKvInfo = useMemo(() => {
       if (!selectedKvId) return null;
-      return AN_PHU_LOCATIONS.find(l => l.id === selectedKvId);
+      return WARD_LOCATIONS.find(l => l.id === selectedKvId);
    }, [selectedKvId]);
 
    const CustomTooltip = ({ active, payload }: any) => {
@@ -207,7 +207,7 @@ export const Dashboard: React.FC<{ isLargeText?: boolean }> = ({ isLargeText }) 
                   <div className="px-5 py-2 bg-admin-red text-white text-[10px] font-black rounded-full shadow-xl flex items-center gap-2 uppercase tracking-widest animate-pulse">
                      <span className="w-2 h-2 bg-white rounded-full"></span> Live Data
                   </div>
-                  <h1 className={`font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none ${isLargeText ? 'text-4xl' : 'text-3xl'}`}>Giám sát An Phú 2026</h1>
+                  <h1 className={`font-black text-slate-900 dark:text-white tracking-tighter uppercase leading-none ${isLargeText ? 'text-4xl' : 'text-3xl'}`}>Giám sát Bàn Cờ 2026</h1>
                </div>
                <p className="text-slate-600 font-bold text-lg flex items-center gap-2 uppercase tracking-wide">Dữ liệu thực tế từ Cơ sở dữ liệu Phường</p>
             </div>

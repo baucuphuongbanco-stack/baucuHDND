@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { AN_PHU_LOCATIONS } from '../types';
+import { WARD_LOCATIONS } from '../types';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 import { createLog } from '../lib/logger';
@@ -208,7 +208,7 @@ export const DataEntry: React.FC<{ isLargeText?: boolean }> = ({ isLargeText }) 
             className="w-full h-14 border-2 rounded-2xl px-4 font-black uppercase focus:border-primary outline-none transition-all"
           >
             <option value="">-- Chọn đơn vị --</option>
-            {AN_PHU_LOCATIONS.filter(l => l.type === 'unit').map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+            {WARD_LOCATIONS.filter(l => l.type === 'unit').map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
           </select>
         </div>
         <div className="space-y-2">
@@ -220,7 +220,7 @@ export const DataEntry: React.FC<{ isLargeText?: boolean }> = ({ isLargeText }) 
             disabled={!selection.unit}
           >
             <option value="">-- Chọn KVBP --</option>
-            {AN_PHU_LOCATIONS
+            {WARD_LOCATIONS
               .filter(l => l.parentId === selection.unit && l.type === 'area')
               .map(a => (
                 <option key={a.id} value={a.id}>
@@ -241,10 +241,10 @@ export const DataEntry: React.FC<{ isLargeText?: boolean }> = ({ isLargeText }) 
             </div>
             <div>
               <h3 className="text-lg font-black uppercase text-slate-900">
-                {AN_PHU_LOCATIONS.find(a => a.id === selection.area)?.name}
+                {WARD_LOCATIONS.find(a => a.id === selection.area)?.name}
               </h3>
               <p className="text-sm font-bold text-slate-600">
-                {AN_PHU_LOCATIONS.find(a => a.id === selection.area)?.locationDetail}
+                {WARD_LOCATIONS.find(a => a.id === selection.area)?.locationDetail}
               </p>
               <p className="text-xs font-bold text-slate-400 mt-1">
                 Tổng cử tri: {generalData.totalVoters.toLocaleString()}
