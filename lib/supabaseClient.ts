@@ -35,8 +35,8 @@ const getEnvVar = (key: string) => {
  * hoặc trong Environment Variables của Netlify (khi deploy)
  */
 // Hỗ trợ cả key REACT_APP_ (cũ) và VITE_ (mới)
-const SUPABASE_URL = getEnvVar('REACT_APP_SUPABASE_URL') || getEnvVar('SUPABASE_URL') || 'https://wimauldqyotovflfowjw.supabase.co';
-const SUPABASE_ANON_KEY = getEnvVar('REACT_APP_SUPABASE_ANON_KEY') || getEnvVar('SUPABASE_ANON_KEY') || 'sb_publishable_9Mn89B57Bd8-CGY59sluIQ_SWhWmelE';
+const SUPABASE_URL = getEnvVar('REACT_APP_SUPABASE_URL') || getEnvVar('SUPABASE_URL') || 'https://arjyhiagccrmbwqqqgacc.supabase.co';
+const SUPABASE_ANON_KEY = getEnvVar('REACT_APP_SUPABASE_ANON_KEY') || getEnvVar('SUPABASE_ANON_KEY') || 'sb_publishable_WznwRibwYOJg_UglxXewfQ_EtFhNU-0';
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error('Lỗi: Thiếu cấu hình Supabase URL hoặc Anon Key. Vui lòng kiểm tra biến môi trường.');
