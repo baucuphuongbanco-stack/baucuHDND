@@ -35,7 +35,7 @@ const getEnvVar = (key: string) => {
  * hoặc trong Environment Variables của Netlify (khi deploy)
  */
 // Hỗ trợ cả key REACT_APP_ (cũ) và VITE_ (mới)
-const SUPABASE_URL = getEnvVar('REACT_APP_SUPABASE_URL') || getEnvVar('SUPABASE_URL') || 'https://arjyhiagccrmbwqqqgacc.supabase.co';
+const SUPABASE_URL = getEnvVar('REACT_APP_SUPABASE_URL') || getEnvVar('SUPABASE_URL') || 'https://arjyhiagccrmbwqqgacc.supabase.co';
 const SUPABASE_ANON_KEY = getEnvVar('REACT_APP_SUPABASE_ANON_KEY') || getEnvVar('SUPABASE_ANON_KEY') || 'sb_publishable_WznwRibwYOJg_UglxXewfQ_EtFhNU-0';
 
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {

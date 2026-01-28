@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      includeAssets: [],
       workbox: {
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024, // 3MB
       },
@@ -17,18 +17,7 @@ export default defineConfig({
         short_name: 'BC Bàn Cờ',
         description: 'Hệ thống Quản lý Bầu cử Phường Bàn Cờ 2026',
         theme_color: '#ef4444',
-        icons: [
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          }
-        ]
+        icons: []
       }
     })
   ],
